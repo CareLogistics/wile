@@ -1,4 +1,4 @@
-(defproject wile "0.0.0-1"
+(defproject wile "0.0.0-2"
   :description
   "A few simple wrapper functions for datomic."
 

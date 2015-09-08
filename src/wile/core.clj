@@ -125,6 +125,17 @@
       (gcStorage [_ older-than] (.gcStorage cnx older-than))
       (release [_] (.release cnx)))))
 
+(defn datomic-wile
+  [cnx executor & {:as options
+                   :keys [intercepters spies db-filters]
+                   :or {intercepters ()
+                        spies ()
+                        db-filters ()}}]
+  (cond-> cnx
+    (seq intercepters) (#(apply intercept-transact %          intercepters))
+    (seq spies)        (#(apply spy-transact       % executor spies))
+    (seq db-filters)   (#(apply filter-db          % executor db-filters))))
+
 (defn- passthru
   [cnx]
   (reify

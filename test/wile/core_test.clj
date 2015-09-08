@@ -32,7 +32,7 @@
             spy-conn (spy-transact wile-connection (executor) (partial log-tx tx-log))]
 
         @(api/transact spy-conn sample-attr-tx)
-        (Thread/sleep 100)              ; allow spy function to be invoked
+        (Thread/sleep 100)            ; allow spy function to be invoked
         (is (first @tx-log))))
 
     (testing "intercept"
@@ -48,20 +48,19 @@
         (is (= {:db/id 0} (api/pull (api/db deep6) '[*] 0)))))
 
     (testing "fully cooked gumbo"
-      (let [e (executor)
-            tx-log (atom [])
+      (let [tx-log (atom [])
             tx0-inst (clojure.edn/read-string "#inst \"1970-01-01T00:00:00.000-00:00\"")
 
-            jumbalaya (-> wile-connection
-                          (spy-transact e     (partial log-tx tx-log))
-                          (intercept-transact  decorate-tx)
-                          (filter-db e        (exclude-tx-inst #{tx0-inst})))
+            jumbalaya (datomic-wile wile-connection (executor)
+                                    :intercepters [decorate-tx]
+                                    :spies        [(partial log-tx tx-log)]
+                                    :db-filters   [(exclude-tx-inst #{tx0-inst})])
 
             tx-result @(api/transact jumbalaya sample-attr-tx)
             tx-id      (.tx (first (:tx-data tx-result)))]
 
         @(api/transact jumbalaya sample-attr-tx)
-        (Thread/sleep 100)              ; allow spy function to be invoked
+        (Thread/sleep 100)            ; allow spy function to be invoked
         (is (first @tx-log))
 
         (is (:example (api/pull (api/db jumbalaya) '[*] tx-id)))
