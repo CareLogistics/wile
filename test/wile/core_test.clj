@@ -49,7 +49,7 @@
 
     (testing "fully cooked gumbo"
       (let [tx-log (atom [])
-            tx0-inst (clojure.edn/read-string "#inst \"1970-01-01T00:00:00.000-00:00\"")
+            tx0-inst #inst "1970-01-01T00:00:00.000-00:00"
 
             jumbalaya (datomic-wile wile-connection (executor)
                                     :intercepters [decorate-tx]
