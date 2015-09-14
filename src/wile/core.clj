@@ -1,5 +1,6 @@
 (ns wile.core
-  (:require [datomic
+  (:require [clojure.java.io :as io]
+            [datomic
              [api :as api]
              [promise :refer [settable-future]]])
 
@@ -62,6 +63,14 @@
       (gcStorage [_ older-than] (.gcStorage cnx older-than))
       (release [_] (.release cnx)))))
 
+(defn- notify-spies
+  [spies tx-data tx-result]
+  (do
+    (notify-all spies
+                (with-meta tx-data (merge (meta tx-data)
+                                          {:tx-result tx-result}))),
+    tx-result))
+
 (defn spy-transact
   "Notifies spies when a transaction is completed. Spy function takes a single
   argument, the original tx-data with the transact result attached as meta."
@@ -70,7 +79,7 @@
 
   (let [spy-tx (fn [f tx-data]
                  (lmap executor
-                       #(do (notify-all spies (with-meta tx-data %)), %)
+                       (partial notify-spies spies tx-data)
                        (f cnx tx-data)))]
 
     (reify
