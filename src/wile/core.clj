@@ -141,9 +141,9 @@
                         spies ()
                         db-filters ()}}]
   (cond-> cnx
-    (seq intercepters) (#(apply intercept-transact %          intercepters))
     (seq spies)        (#(apply spy-transact       % executor spies))
-    (seq db-filters)   (#(apply filter-db          % executor db-filters))))
+    (seq db-filters)   (#(apply filter-db          % executor db-filters))
+    (seq intercepters) (#(apply intercept-transact %          intercepters))))
 
 (defn- passthru
   [cnx]
