@@ -2,7 +2,8 @@
   (:require [clojure.java.io :as io]
             [datomic
              [api :as api]
-             [promise :refer [settable-future]]])
+             [promise :refer [settable-future]]]
+            [clojure.tools.logging :as log])
 
   (:import [datomic
             Connection
@@ -17,7 +18,9 @@
   {:pre [(ifn? f)]}
   (io!
    (try (apply f more)
-        (catch Throwable _ nil)
+        (catch Throwable t
+          (log/error t "Exception Encountered Notifying Spy")
+          nil)
         (finally nil))))
 
 (defn notify-all
