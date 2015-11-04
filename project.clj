@@ -13,4 +13,5 @@
                   :scope "provided"
                   :exclusions [joda-time]]
                  [clj-time "0.11.0"
-                  :scope "provided"]])
+                  :scope "provided"]
+                 [org.clojure/tools.logging "0.3.1"]])
